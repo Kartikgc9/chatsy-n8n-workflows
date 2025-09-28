@@ -1,1 +1,10 @@
+# Environment variables
+.env
+.env.local
 
+# n8n local data
+.n8n/
+node_modules/
+
+# Logs
+*.log
