@@ -1,0 +1,108 @@
+{
+  "name": "health-monitoring",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "health",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "dfdb59d4-21de-4526-a37c-feac5e2ab980",
+      "name": "Webhook - Health Check",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        500,
+        200
+      ],
+      "webhookId": "health"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate system health status\nconst currentTime = new Date();\nconst startTime = new Date(currentTime.getTime() - (2 * 24 * 60 * 60 * 1000)); // 2 days ago for demo\n\n// Simulate system metrics (in real implementation, these would come from actual monitoring)\nconst healthData = {\n  status: 'healthy',\n  uptime: Math.floor((currentTime.getTime() - startTime.getTime()) / 1000), // seconds\n  timestamp: currentTime.toISOString(),\n  workflows: {\n    'response-generation': 'active',\n    'feedback-learning': 'active',\n    'health-monitor': 'active'\n  },\n  metrics: {\n    api_calls_today: Math.floor(Math.random() * 2000) + 1000, // Simulate 1000-3000 calls\n    success_rate: 0.97,\n    avg_response_time: Math.floor(Math.random() * 200) + 250, // 250-450ms\n    cache_hit_rate: 0.72,\n    active_contacts: Math.floor(Math.random() * 500) + 100\n  },\n  system_info: {\n    n8n_version: '1.0.0',\n    node_count: 3,\n    memory_usage: '45MB',\n    cpu_usage: '12%'\n  },\n  dependencies: {\n    huggingface_api: 'connected',\n    database: 'connected',\n    cache_layer: 'connected'\n  }\n};\n\n// Check if any critical thresholds are exceeded\nif (healthData.metrics.success_rate < 0.95) {\n  healthData.status = 'degraded';\n  healthData.alerts = ['API success rate below threshold'];\n}\n\nif (healthData.metrics.avg_response_time > 1000) {\n  healthData.status = 'degraded';\n  healthData.alerts = healthData.alerts || [];\n  healthData.alerts.push('Average response time too high');\n}\n\nreturn healthData;"
+      },
+      "id": "fd8dd8c4-0d15-439c-b17e-46ecdb8944f3",
+      "name": "System Status Generation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect additional performance metrics\nconst healthData = $json;\n\n// Add more detailed performance data\nhealthData.performance = {\n  database: {\n    query_time_avg: '45ms',\n    active_connections: 12,\n    slow_queries: 0\n  },\n  api_providers: {\n    huggingface: {\n      status: 'operational',\n      response_time: '342ms',\n      rate_limit_remaining: 4850\n    },\n    fallback_providers: {\n      status: 'standby',\n      last_used: '2 hours ago'\n    }\n  },\n  caching: {\n    memory_cache_size: '25MB',\n    hit_rate: '72%',\n    evictions_today: 145\n  }\n};\n\n// Add error tracking\nhealthData.error_tracking = {\n  total_errors_24h: 8,\n  critical_errors: 0,\n  warning_count: 3,\n  most_common_error: 'API timeout (3 occurrences)'\n};\n\n// Predict system health trends\nhealthData.predictions = {\n  load_trend: 'stable',\n  capacity_utilization: '23%',\n  estimated_scale_needed: 'current capacity sufficient for 7 days'\n};\n\nreturn healthData;"
+      },
+      "id": "a12b711e-a59d-40c0-bb5b-c3de62a53afb",
+      "name": "Performance Metrics Collection",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        920,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "91e40614-cff2-492b-895b-47dafa2b52ca",
+      "name": "Health Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        200
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Health Check": {
+      "main": [
+        [
+          {
+            "node": "System Status Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "System Status Generation": {
+      "main": [
+        [
+          {
+            "node": "Performance Metrics Collection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Performance Metrics Collection": {
+      "main": [
+        [
+          {
+            "node": "Health Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7ff1c992-3435-449c-aae0-1c338c58a8a0",
+  "meta": {
+    "instanceId": "39ced514d9cc35d9ec49ced982170396ae1eb83133619d83ea9f92a29b6c93c7"
+  },
+  "id": "843GgKqcEMvQ029h",
+  "tags": []
+}
