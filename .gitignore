@@ -1,10 +1,6 @@
-# Environment variables
 .env
 .env.local
-
-# n8n local data
-.n8n/
 node_modules/
-
-# Logs
+.n8n/
 *.log
+.DS_Store
